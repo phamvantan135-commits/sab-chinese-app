@@ -2,61 +2,58 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>SAB Chinese Academy - HSK System</title>
+    <title>SAB Chinese Academy Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen p-4">
     <div id="app" class="max-w-2xl mx-auto">
         <h1 class="text-3xl font-bold text-center text-green-400 mb-6">SAB Chinese Academy</h1>
-        <div id="view"></div>
+        <div id="view">Đang tải dữ liệu HSK từ hệ thống...</div>
     </div>
 
     <script>
-        // Cấu trúc dữ liệu bài học chuyên sâu
-        const hskData = {
-            "1": [
-                {
-                    "title": "Bài 1: 你好 (Xin chào)",
-                    "audio": "https://example.com/hsk1-l1.mp3",
-                    "lesson": "A: 你好! B: 你好! A: 你好吗? B: 我很好, 谢谢!",
-                    "grammar": "S + 好: Lời chào tiêu chuẩn. 吗: Trợ từ nghi vấn.",
-                    "sab_application": "Chào hỏi đối tác cung ứng phụ liệu hoặc quản lý xưởng.",
-                    "vocabulary": "经理 (Jīnglǐ - Giám đốc), 辅料 (Fǔliào - Phụ liệu)."
-                }
-            ]
-        };
+        // Hệ thống sẽ tự nạp từ file data.json mà bạn lưu trên GitHub
+        fetch('data.json')
+            .then(res => res.json())
+            .then(data => {
+                window.hskData = data;
+                renderLevels();
+            })
+            .catch(() => document.getElementById('view').innerHTML = "Lỗi tải dữ liệu. Hãy kiểm tra file data.json");
 
-        function renderList(level) {
-            let html = `<button onclick="location.reload()" class="bg-red-600 px-4 py-2 mb-4 rounded">Quay lại cấp độ</button>`;
-            hskData[level].forEach((item, idx) => {
-                html += `<div class="bg-gray-800 p-4 rounded mb-2 cursor-pointer hover:bg-gray-700" onclick="showDetail('${level}', ${idx})">
+        function renderLevels() {
+            let html = '<h2 class="text-xl mb-4">Chọn cấp độ HSK:</h2>';
+            Object.keys(window.hskData).forEach(lv => {
+                html += `<button onclick="renderLessons('${lv}')" class="w-full bg-green-600 p-4 mb-2 rounded font-bold text-xl hover:bg-green-700">HSK ${lv}</button>`;
+            });
+            document.getElementById('view').innerHTML = html;
+        }
+
+        function renderLessons(lv) {
+            let html = `<button onclick="location.reload()" class="bg-red-600 px-4 py-2 mb-4 rounded">« Quay lại</button>`;
+            window.hskData[lv].forEach((item, idx) => {
+                html += `<div class="bg-gray-800 p-4 mb-2 rounded cursor-pointer hover:bg-gray-700" onclick="showDetail('${lv}', ${idx})">
                             <h3 class="font-bold">${item.title}</h3>
                          </div>`;
             });
             document.getElementById('view').innerHTML = html;
         }
 
-        function showDetail(level, idx) {
-            let item = hskData[level][idx];
+        function showDetail(lv, idx) {
+            let item = window.hskData[lv][idx];
             document.getElementById('view').innerHTML = `
-                <button onclick="renderList('${level}')" class="bg-blue-600 px-4 py-2 mb-4 rounded">← Trở về</button>
+                <button onclick="renderLessons('${lv}')" class="bg-blue-600 px-4 py-2 mb-4 rounded">« Trở về</button>
                 <div class="bg-white text-gray-900 p-6 rounded-lg shadow-xl">
                     <h2 class="text-2xl font-bold mb-4 text-blue-800">${item.title}</h2>
-                    <audio controls class="w-full mb-4"><source src="${item.audio}" type="audio/mpeg"></audio>
                     <div class="space-y-4">
-                        <p><strong>Bài khóa:</strong> ${item.lesson}</p>
+                        <p><strong>Bài khóa:</strong> ${item.content}</p>
                         <p><strong>Ngữ pháp:</strong> ${item.grammar}</p>
-                        <p><strong>Từ vựng SAB:</strong> ${item.vocabulary}</p>
-                        <p class="bg-green-100 p-3 rounded italic"><strong>Ứng dụng SAB:</strong> ${item.sab_application}</p>
+                        <p class="bg-green-100 p-3 rounded"><strong>Ứng dụng SAB:</strong> ${item.sab_application}</p>
+                        <p class="bg-yellow-100 p-3 rounded"><strong>Audio/Ghi chú:</strong> ${item.notes}</p>
                     </div>
                 </div>
             `;
         }
-        
-        // Hiển thị cấp độ đầu tiên
-        document.getElementById('view').innerHTML = Object.keys(hskData).map(lv => 
-            `<button onclick="renderList('${lv}')" class="w-full bg-green-600 p-4 mb-2 rounded font-bold text-xl">HSK ${lv}</button>`
-        ).join('');
     </script>
 </body>
 </html>
