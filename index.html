@@ -8,27 +8,46 @@
 </head>
 <body class="bg-gray-100 p-4">
     <div id="app" class="max-w-md mx-auto">
-        <h1 class="text-2xl font-bold mb-4">SAB Chinese Academy</h1>
-        <div id="main-menu" class="space-y-2"></div>
+        <h1 class="text-2xl font-bold mb-4 text-center">SAB Chinese Academy</h1>
+        <div id="main-view" class="space-y-2"></div>
     </div>
-    <script>
-        // Tải dữ liệu từ file data.json
-        fetch('data.json')
-            .then(res => res.json())
-            .then(data => {
-                const menu = document.getElementById('main-menu');
-                Object.keys(data).forEach(level => {
-                    menu.innerHTML += `<button onclick="showLessons('${level}')" class="w-full p-4 bg-blue-600 text-white rounded-lg">HSK ${level}</button>`;
-                });
-                window.lessonData = data;
-            });
 
-        function showLessons(level) {
-            const menu = document.getElementById('main-menu');
-            menu.innerHTML = `<button onclick="location.reload()" class="mb-4 bg-gray-500 text-white p-2 w-full">Quay lại</button>`;
-            window.lessonData[level].forEach((lesson, index) => {
-                menu.innerHTML += `<div class="p-4 bg-white rounded shadow mb-2">${lesson.title}</div>`;
+    <script>
+        let fullData = {};
+        fetch('data.json').then(res => res.json()).then(data => { fullData = data; renderHome(); });
+
+        function renderHome() {
+            let view = document.getElementById('main-view');
+            view.innerHTML = '<h2 class="text-lg font-semibold mb-2">Chọn cấp độ:</h2>';
+            Object.keys(fullData).forEach(level => {
+                view.innerHTML += `<button onclick="renderLessons('${level}')" class="w-full p-4 bg-blue-600 text-white rounded-lg shadow">HSK ${level}</button>`;
             });
+        }
+
+        function renderLessons(level) {
+            let view = document.getElementById('main-view');
+            view.innerHTML = `<button onclick="renderHome()" class="mb-4 bg-gray-500 text-white p-2 w-full rounded">Quay lại</button>`;
+            fullData[level].forEach((lesson, index) => {
+                view.innerHTML += `<button onclick="renderLessonDetail('${level}', ${index})" class="w-full p-4 bg-white border border-gray-200 rounded shadow text-left">${lesson.title}</button>`;
+            });
+        }
+
+        function renderLessonDetail(level, index) {
+            let lesson = fullData[level][index];
+            let view = document.getElementById('main-view');
+            view.innerHTML = `
+                <button onclick="renderLessons('${level}')" class="mb-4 bg-gray-500 text-white p-2 w-full rounded">Quay lại danh sách</button>
+                <div class="p-6 bg-white rounded-lg shadow">
+                    <h2 class="text-xl font-bold mb-4">${lesson.title}</h2>
+                    <p class="mb-4 text-gray-700"><strong>Bài khóa:</strong> ${lesson.content}</p>
+                    <p class="mb-4 text-gray-700"><strong>Ngữ pháp:</strong> ${lesson.grammar}</p>
+                    <div class="bg-green-50 p-4 rounded border border-green-200">
+                        <h3 class="font-bold text-green-800">Từ vựng SAB:</h3>
+                        <p>${lesson.sab_vocab}</p>
+                    </div>
+                    <button onclick="alert('Hãy copy nội dung này gửi cho AI: LỖI TẠI ${level}-${index}')" class="mt-6 w-full bg-red-500 text-white p-2 rounded">Báo lỗi bài này</button>
+                </div>
+            `;
         }
     </script>
 </body>
