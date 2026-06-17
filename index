@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAB Chinese Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <div id="app" class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold mb-4">SAB Chinese Academy</h1>
+        <div id="main-menu" class="space-y-2"></div>
+    </div>
+    <script>
+        // Tải dữ liệu từ file data.json
+        fetch('data.json')
+            .then(res => res.json())
+            .then(data => {
+                const menu = document.getElementById('main-menu');
+                Object.keys(data).forEach(level => {
+                    menu.innerHTML += `<button onclick="showLessons('${level}')" class="w-full p-4 bg-blue-600 text-white rounded-lg">HSK ${level}</button>`;
+                });
+                window.lessonData = data;
+            });
+
+        function showLessons(level) {
+            const menu = document.getElementById('main-menu');
+            menu.innerHTML = `<button onclick="location.reload()" class="mb-4 bg-gray-500 text-white p-2 w-full">Quay lại</button>`;
+            window.lessonData[level].forEach((lesson, index) => {
+                menu.innerHTML += `<div class="p-4 bg-white rounded shadow mb-2">${lesson.title}</div>`;
+            });
+        }
+    </script>
+</body>
+</html>
